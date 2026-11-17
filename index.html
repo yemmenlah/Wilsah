@@ -907,8 +907,8 @@ if (error || !data || !data.success) {
             document.getElementById('confFbLink').value = siteTexts.fbLink || "";
             document.getElementById('confIgLink').value = siteTexts.igLink || "";
             document.getElementById('confLiLink').value = siteTexts.liLink || "";
-            document.getElementById('confSupabaseUrl').value = supabaseConfig.url || "";
-            document.getElementById('confSupabaseKey').value = supabaseConfig.key || "";
+            document.getElementById('confSupabaseUrl').value = SUPABASE_URL;
+            document.getElementById('confSupabaseKey').value = SUPABASE_PUBLISHABLE_KEY;
             document.getElementById('confBannerBadge').value = bannerConfig.badge || "";
             document.getElementById('confBannerTitle').value = bannerConfig.title || "";
             document.getElementById('confBannerDesc').value = bannerConfig.desc || "";
