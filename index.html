@@ -1025,54 +1025,89 @@ if (error || !data || !data.success) {
             }).join('');
         }
 
-        function saveAdminProduct() {
-            const id = document.getElementById('adminProdId').value;
-            const name = document.getElementById('apName').value.trim();
-            const category = document.getElementById('apCat').value;
-            const sizesPricesInput = document.getElementById('apSizesPrices').value.trim();
-            const desc = document.getElementById('apDesc').value.trim();
-            const fileInput = document.getElementById('apImgFile');
+async function saveAdminProduct() {
+    const id = document.getElementById('adminProdId').value;
+    const name = document.getElementById('apName').value.trim();
+    const category = document.getElementById('apCat').value;
+    const sizesPricesInput = document.getElementById('apSizesPrices').value.trim();
+    const desc = document.getElementById('apDesc').value.trim();
+    const fileInput = document.getElementById('apImgFile');
 
-            if (!name) return alert("Veuillez saisir le nom du produit");
-            if (!sizesPricesInput) return alert("Veuillez saisir les tailles et leurs prix (Ex: 30ml:120, 50ml:180)");
+    if (!name) return alert("Veuillez saisir le nom du produit");
+    if (!sizesPricesInput) return alert("Veuillez saisir les tailles et leurs prix");
 
-            let sizePrices = {};
-            try {
-                const parts = sizesPricesInput.split(',');
-                parts.forEach(part => {
-                    const [sName, sPrice] = part.split(':');
-                    if (sName && sPrice) {
-                        sizePrices[sName.trim()] = parseFloat(sPrice.trim()) || 0;
-                    }
-                });
-            } catch (e) {
-                return alert("Format invalide. Utilisez le format: taille:prix, taille:prix");
+    let sizePrices = {};
+
+    try {
+        sizesPricesInput.split(',').forEach(part => {
+            const [sName, sPrice] = part.split(':');
+            if (sName && sPrice) {
+                sizePrices[sName.trim()] = parseFloat(sPrice.trim()) || 0;
             }
+        });
+    } catch (e) {
+        return alert("Format invalide. Utilisez: taille:prix");
+    }
 
-            const finalize = (imgData) => {
-                if (id) {
-                    const idx = products.findIndex(p => p.id == id);
-                    if (idx !== -1) {
-                        products[idx] = { ...products[idx], name, category, sizePrices, desc, image: imgData !== null ? imgData : products[idx].image };
-                    }
-                } else {
-                    products.unshift({ id: Date.now(), name, category, sizePrices, desc, icon: "📦", image: imgData || "" });
-                }
-                saveCloudData();
-                renderProducts();
-                renderAdminProductList();
-                resetProdForm();
-                alert("Produit enregistré et synchronisé instantanément sur le Cloud ✅");
-            };
+    const finalize = async (imgData) => {
+        const previousProducts = [...products];
 
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => finalize(e.target.result);
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                finalize(null);
+        if (id) {
+            const idx = products.findIndex(p => p.id == id);
+
+            if (idx !== -1) {
+                products[idx] = {
+                    ...products[idx],
+                    name,
+                    category,
+                    sizePrices,
+                    desc,
+                    image: imgData !== null ? imgData : products[idx].image
+                };
             }
+        } else {
+            products.unshift({
+                id: Date.now(),
+                name,
+                category,
+                sizePrices,
+                desc,
+                icon: "📦",
+                image: imgData || ""
+            });
         }
+
+        const saved = await saveCloudData();
+
+        if (!saved) {
+            products.splice(0, products.length, ...previousProducts);
+            renderProducts();
+            renderAdminProductList();
+            alert("Échec de synchronisation. Le produit n'a pas été confirmé sur Supabase.");
+            return;
+        }
+
+        renderProducts();
+        renderAdminProductList();
+        resetProdForm();
+
+        alert("Produit enregistré et synchronisé sur Supabase ✅");
+    };
+
+    if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = async e => {
+            await finalize(e.target.result);
+        };
+
+        reader.onerror = () => alert("Erreur de lecture de l'image.");
+
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        await finalize(null);
+    }
+}
 
         function editAdminProduct(id) {
             const p = products.find(item => item.id === id);
