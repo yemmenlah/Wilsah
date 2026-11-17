@@ -519,12 +519,31 @@ async function saveCloudData() {
             }
         );
 
-        if (error || !data || !data.success) {
-            sessionStorage.removeItem('wislah_admin_cloud_password');
-            console.error("Cloud save error:", error || data);
-            alert("Échec de synchronisation. Vérifiez le mot de passe administrateur.");
-            return false;
+     
+if (error || !data || !data.success) {
+    sessionStorage.removeItem('wislah_admin_cloud_password');
+
+    console.error("Cloud save error:", error, data);
+
+    let details = "Erreur inconnue";
+
+    if (error) {
+        details = error.message || String(error);
+
+        if (error.context) {
+            try {
+                const response = await error.context.json();
+                details += " | " + JSON.stringify(response);
+            } catch (_) {}
         }
+    } else if (data) {
+        details = JSON.stringify(data);
+    }
+
+    alert("Échec Supabase : " + details);
+    return false;
+}
+
 
         sessionStorage.setItem('wislah_admin_cloud_password', adminPassword);
 
