@@ -421,17 +421,21 @@
             imageOnly: false
         };
 
-        // Supabase configuration storage
-        let supabaseConfig = JSON.parse(localStorage.getItem('wislah_supabase_conf')) || { url: '', key: '' };
-        let supabaseClient = null;
 
-        if (supabaseConfig.url && supabaseConfig.key) {
-            try {
-                supabaseClient = supabase.createClient(supabaseConfig.url, supabaseConfig.key);
-            } catch (e) {
-                console.error("Supabase init error:", e);
-            }
-        }
+const SUPABASE_URL = 'https://wkrxwdusmxwurszuawvyv.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LiytCVKHSatnEAtFQfkkJQ_yqVzWOhE';
+
+let supabaseClient = null;
+
+try {
+    supabaseClient = supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+} catch (e) {
+    console.error("Supabase init error:", e);
+}
+
 
         let categories = JSON.parse(localStorage.getItem('wislah_v12_cats')) || defaultCategories;
         let features = JSON.parse(localStorage.getItem('wislah_v12_feats')) || defaultFeatures;
@@ -482,32 +486,63 @@
             renderProducts();
         }
 
-        async function saveCloudData() {
-            const payload = { products, categories, features, siteTexts, bannerConfig };
-            // Save locally first for instant feedback
-            localStorage.setItem('wislah_v12_prods', JSON.stringify(products));
-            localStorage.setItem('wislah_v12_cats', JSON.stringify(categories));
-            localStorage.setItem('wislah_v12_feats', JSON.stringify(features));
-            localStorage.setItem('wislah_v12_texts', JSON.stringify(siteTexts));
-            localStorage.setItem('wislah_v12_banner', JSON.stringify(bannerConfig));
+       
+async function saveCloudData() {
+    const payload = {
+        products,
+        categories,
+        features,
+        siteTexts,
+        bannerConfig
+    };
 
-            if (!supabaseClient) return;
+    try {
+        let adminPassword = sessionStorage.getItem('wislah_admin_cloud_password');
 
-            try {
-                // Upsert state into Supabase table 'wislah_store' with id = 1
-                const { error } = await supabaseClient
-                    .from('wislah_store')
-                    .upsert({ id: 1, payload: payload });
+        if (!adminPassword) {
+            adminPassword = prompt("Entrez le mot de passe administrateur pour synchroniser les données :");
 
-                if (error) {
-                    console.error("Supabase save error:", error.message);
-                } else {
-                    console.log("Synchronisé avec Supabase avec succès ✅");
-                }
-            } catch (e) {
-                console.error("Cloud sync exception:", e);
+            if (!adminPassword) {
+                alert("Synchronisation annulée.");
+                return false;
             }
         }
+
+        const { data, error } = await supabaseClient.functions.invoke(
+            'admin-save',
+            {
+                body: { payload },
+                headers: {
+                    'x-admin-password': adminPassword
+                }
+            }
+        );
+
+        if (error || !data || !data.success) {
+            sessionStorage.removeItem('wislah_admin_cloud_password');
+            console.error("Cloud save error:", error || data);
+            alert("Échec de synchronisation. Vérifiez le mot de passe administrateur.");
+            return false;
+        }
+
+        sessionStorage.setItem('wislah_admin_cloud_password', adminPassword);
+
+        localStorage.setItem('wislah_v12_prods', JSON.stringify(products));
+        localStorage.setItem('wislah_v12_cats', JSON.stringify(categories));
+        localStorage.setItem('wislah_v12_feats', JSON.stringify(features));
+        localStorage.setItem('wislah_v12_texts', JSON.stringify(siteTexts));
+        localStorage.setItem('wislah_v12_banner', JSON.stringify(bannerConfig));
+
+        console.log("Synchronisé avec Supabase avec succès ✅");
+        return true;
+
+    } catch (error) {
+        console.error("Cloud sync exception:", error);
+        alert("Erreur de connexion au serveur.");
+        return false;
+    }
+}
+
 
         function applySiteTexts() {
             document.getElementById('heroTitleMain').innerHTML = siteTexts.titleMain + `<span id="heroTitleSpan">${siteTexts.titleSpan}</span>`;
@@ -841,7 +876,7 @@
         }
 
         function openMasterAdmin() {
-            const code = prompt("Code d'accès Master Admin (Par défaut : 1234) :");
+            const code = prompt("Code d'accès Master Admin () :");
             if (code !== "1234") return alert("Code incorrect !");
             document.getElementById('confTitleMain').value = siteTexts.titleMain;
             document.getElementById('confTitleSpan').value = siteTexts.titleSpan;
