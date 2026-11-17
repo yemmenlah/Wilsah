@@ -879,6 +879,7 @@ async function saveCloudData() {
         function openMasterAdmin() {
             const code = prompt("Code d'accès Master Admin () :");
             if (code !== "1234") return alert("Code incorrect !");
+            document.getElementById('masterAdminModal').style.display = 'flex';
             document.getElementById('confTitleMain').value = siteTexts.titleMain;
             document.getElementById('confTitleSpan').value = siteTexts.titleSpan;
             document.getElementById('confSubtitle').value = siteTexts.subtitle;
