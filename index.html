@@ -1143,32 +1143,60 @@ async function saveAdminProduct() {
             document.getElementById('cancelProdEdit').style.display = 'none';
         }
 
-        function renderAdminCategoriesEditor() {
-            const container = document.getElementById('adminCategoriesEditor');
-            container.innerHTML = categories.map((cat, idx) => `
-                <div style="background:white; padding:15px; border-radius:12px; border:1px solid #E2E8F0; display:flex; flex-direction:column; gap:10px;">
-                    <strong>Catégorie ${idx + 1} (${cat.id})</strong>
-                    <div style="display:flex; gap:10px;">
-                        <input type="text" id="catName_${idx}" value="${cat.name}" placeholder="Nom" style="flex:1; padding:8px; border-radius:6px; border:1px solid #CBD5E1;">
-                        <input type="text" id="catIcon_${idx}" value="${cat.icon}" placeholder="Emoji" style="width:70px; padding:8px; border-radius:6px; border:1px solid #CBD5E1; text-align:center;">
-                    </div>
-                </div>
-            `).join('');
-        }
+     
+function renderAdminCategoriesEditor() {
+    const container = document.getElementById('adminCategoriesEditor');
 
-        function saveCategoriesConfig() {
-            categories.forEach((cat, idx) => {
-                const nameInput = document.getElementById(`catName_${idx}`);
-                const iconInput = document.getElementById(`catIcon_${idx}`);
-                if (nameInput) cat.name = nameInput.value.trim();
-                if (iconInput) cat.icon = iconInput.value.trim();
-            });
-            saveCloudData();
-            renderCategoriesGrid();
-            populateCategoryDropdowns();
-            renderProducts();
-            alert("Catégories mises à jour sur le Cloud ✅");
-        }
+    container.innerHTML = categories.map((cat, idx) => `
+        <div style="background:white; padding:15px; border-radius:12px; border:1px solid #E2E8F0; display:flex; flex-direction:column; gap:10px;">
+            <strong>Catégorie ${idx + 1} (${cat.id})</strong>
+
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="catName_${idx}"
+                    value="${cat.name}" placeholder="Nom"
+                    style="flex:1; padding:8px; border-radius:6px; border:1px solid #CBD5E1;">
+
+                <input type="text" id="catIcon_${idx}"
+                    value="${cat.icon || ''}" placeholder="Emoji"
+                    style="width:70px; padding:8px; border-radius:6px; border:1px solid #CBD5E1; text-align:center;">
+            </div>
+
+            <input type="text" id="catImage_${idx}"
+                value="${cat.image || ''}"
+                placeholder="Nom de l'image (ex: emb.jpg)"
+                style="width:100%; box-sizing:border-box; padding:10px; border-radius:6px; border:1px solid #CBD5E1;">
+
+            <small style="color:#64748B;">Exemple : emb.jpg</small>
+        </div>
+    `).join('');
+}
+
+
+        
+async function saveCategoriesConfig() {
+    categories.forEach((cat, idx) => {
+        const nameInput = document.getElementById(`catName_${idx}`);
+        const iconInput = document.getElementById(`catIcon_${idx}`);
+        const imageInput = document.getElementById(`catImage_${idx}`);
+
+        if (nameInput) cat.name = nameInput.value.trim();
+        if (iconInput) cat.icon = iconInput.value.trim();
+        if (imageInput) cat.image = imageInput.value.trim();
+    });
+
+    const saved = await saveCloudData();
+
+    if (!saved) {
+        alert("Échec de sauvegarde des catégories !");
+        return;
+    }
+
+    renderCategoriesGrid();
+    populateCategoryDropdowns();
+    renderProducts();
+
+    alert("Catégories et images enregistrées sur le Cloud ✅");
+}
 
         function saveSiteTexts() {
             siteTexts.titleMain = document.getElementById('confTitleMain').value;
