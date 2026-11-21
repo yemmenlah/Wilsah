@@ -165,14 +165,14 @@
             <span>Wislah - </span><span class="brand-ar">وصلة</span>
         </a>
         <div class="nav-links">
-            <button class="nav-item active" onclick="scrollToSection('top')">🏠 Accueil</button>
-            <button class="nav-item" onclick="scrollToSection('catalog')">📦 Produits</button>
-            <button class="nav-item" onclick="scrollToSection('categories')">⊞ Catégories</button>
-            <button class="nav-item" onclick="scrollToSection('special')">📋 Commande spéciale</button>
-            <button class="nav-item" onclick="scrollToSection('footer')">ℹ️ À propos</button>
+            <button class="nav-item active" onclick="scrollToSection('top')">Accueil</button>
+            <button class="nav-item" onclick="scrollToSection('catalog')">Produits</button>
+            <button class="nav-item" onclick="scrollToSection('categories')">Catégories</button>
+            <button class="nav-item" onclick="scrollToSection('special')">Commande spéciale</button>
+            <button class="nav-item" onclick="scrollToSection('footer')">À propos</button>
         </div>
         <div class="nav-actions">
-            <button class="btn-admin-nav" onclick="openMasterAdmin()">⚙️ Master Admin</button>
+            <button class="btn-admin-nav" onclick="openMasterAdmin()">⚙️</button>
             <button class="btn-wa-nav" onclick="contactDirectWhatsApp()">💬 Contact</button>
         </div>
     </nav>
@@ -186,8 +186,8 @@
                     Packaging, produits de laboratoire, matières minérales, ingrédients naturels, solutions de nettoyage et produits industriels.
                 </p>
                 <div class="hero-buttons">
-                    <button class="btn-primary-purple" onclick="scrollToSection('catalog')">🔍 Explorer les produits</button>
-                    <button class="btn-outline-wa" onclick="openCart()">💬 Mon Panier (<span id="heroCartCount">0</span>)</button>
+                    <button class="btn-primary-purple" onclick="scrollToSection('catalog')">Explorer les produits</button>
+                    <button class="btn-outline-wa" onclick="openCart()">Mon Panier (<span id="heroCartCount">0</span>)</button>
                 </div>
                 <div class="hero-features" id="heroFeaturesContainer"></div>
             </div>
@@ -223,12 +223,12 @@
                 <input type="text" id="reqName" placeholder="Nom du produit ou matière">
                 <input type="text" id="reqSpecs" placeholder="Spécifications / Quantité">
                 <input type="text" id="reqWilaya" placeholder="Wilaya">
-                <button onclick="sendSpecialRequest()">Envoyer la demande 📲</button>
+                <button onclick="sendSpecialRequest()">Envoyer la demande </button>
             </div>
         </div>
     </section>
     <button class="floating-cart" onclick="openCart()">
-        📋 Panier (<span id="cartCount">0</span>)
+         Panier (<span id="cartCount">0</span>)
     </button>
     <div class="detail-modal" id="productDetailModal">
         <div class="detail-box">
@@ -239,7 +239,7 @@
     <div class="modal" id="cartModal">
         <div class="modal-box">
             <div class="modal-top">
-                <h3>📋 Mon Panier & Commande</h3>
+                <h3> Mon Panier & Commande</h3>
                 <button onclick="closeCart()" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">×</button>
             </div>
             <div id="cartItemsContainer"></div>
@@ -247,7 +247,7 @@
                 <input type="text" id="clientName" placeholder="Nom complet / Entreprise" style="padding:10px; border-radius:8px; border:1px solid #CBD5E1;">
                 <input type="text" id="clientWilaya" placeholder="Wilaya" style="padding:10px; border-radius:8px; border:1px solid #CBD5E1;">
                 <button onclick="sendCartWhatsApp()" style="background:#22C55E; color:white; border:none; padding:13px; border-radius:12px; font-weight:800; cursor:pointer;">
-                    Commander sur WhatsApp ✅
+                    Commander sur WhatsApp 
                 </button>
             </div>
         </div>
